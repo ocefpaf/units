@@ -1,23 +1,76 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
-# See https://github.com/scientific-python/cookie#sp-repo-review for repo-review
+# See https://pre-commit.ci/#configuration
+# See https://github.com/scientific-python/cookie#sp-repo-review
+
+ci:
+  autofix_prs: false
+  autoupdate_commit_msg: "chore: update pre-commit hooks"
+
+
+# Alphabetised, for lack of a better order.
+files: |
+    (?x)(
+        benchmarks\/.+\.py|
+        docs\/.+\.py|
+        lib\/.+\.py|
+        noxfile\.py|
+        pyproject\.toml|
+        setup\.py|
+        src\/.+\.py
+    )
+minimum_pre_commit_version: 1.21.0
 
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v4.6.0
     hooks:
         # Prevent giant files from being committed.
     -   id: check-added-large-files
         # Check whether files parse as valid Python.
     -   id: check-ast
-        # Check for file name conflicts on case-insensitive filesytems.
+        # Check for file name conflicts on case-insensitive filesystems.
     -   id: check-case-conflict
         # Check for files that contain merge conflict strings.
     -   id: check-merge-conflict
         # Check for debugger imports and py37+ `breakpoint()` calls in Python source.
     -   id: debug-statements
+        # Check TOML file syntax.
+    -   id: check-toml
+        # Check YAML file syntax.
+    -   id: check-yaml
+        # Makes sure files end in a newline and only a newline.
+        # Duplicates Ruff W292 but also works on non-Python files.
+    -   id: end-of-file-fixer
+        # Replaces or checks mixed line ending.
+    -   id: mixed-line-ending
         # Don't commit to main branch.
     -   id: no-commit-to-branch
+        # Trims trailing whitespace.
+        # Duplicates Ruff W291 but also works on non-Python files.
+    -   id: trailing-whitespace
+
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: "v0.4.4"
+    hooks:
+    -   id: ruff
+        types: [file, python]
+        args: [--fix, --show-fixes]
+    -   id: ruff-format
+        types: [file, python]
+
+-   repo: https://github.com/codespell-project/codespell
+    rev: "v2.2.6"
+    hooks:
+    -   id: codespell
+        types_or: [asciidoc, python, markdown, rst]
+        additional_dependencies: [tomli]
+
+-   repo: https://github.com/adamchainz/blacken-docs
+    rev: 1.16.0
+    hooks:
+    -   id: blacken-docs
+        types: [file, rst]
 
 -   repo: https://github.com/aio-libs/sort-all
     rev: v1.2.0
@@ -25,25 +78,27 @@ repos:
     -   id: sort-all
         types: [file, python]
 
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: 'v1.10.0'
+    hooks:
+    -   id: mypy
+        exclude: 'noxfile\.py|docs/conf\.py'
+
+-   repo: https://github.com/abravalheri/validate-pyproject
+    # More exhaustive than Ruff RUF200.
+    rev: "v0.18"
+    hooks:
+    - id: validate-pyproject
+
 -   repo: https://github.com/scientific-python/cookie
-    rev: 2024.08.19
+    rev: 2024.04.23
     hooks:
-    -   id: sp-repo-review
-        additional_dependencies: ["repo-review[cli]"]   # TODO: Only neededed if extra dependencies are required
-        #args: ["--show=errskip"]  # show everything for the moment
+    - id: sp-repo-review
+      additional_dependencies: ["repo-review[cli]"]
+      args: ["--show=errskip"]
 
--   repo: https://github.com/adamchainz/blacken-docs
-    rev: 1.19.1
+-   repo: https://github.com/numpy/numpydoc
+    rev: v1.7.0
     hooks:
-    -   id: blacken-docs
-        types: [file, rst]
-
--   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.7.1"
-    hooks:
-    # Run the linter
-    -   id: ruff
+      - id: numpydoc-validation
         types: [file, python]
-        args: [--fix, --show-fixes]
-    # Run the formatter.
-    -   id: ruff-format
